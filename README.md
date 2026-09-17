@@ -92,18 +92,3 @@ fan animation · telemetry · AIO display · audio · airflow · thermal effects
 The case keeps its motherboard-side rear plane fixed. Its glass side is moved inward to a depth of 5.24 scene units, its local width is scaled by 1.1, and its three front intake fans use a non-overlapping scale of 1.28.
 
 See [the implementation review](docs/implementation-review.md) for camera ownership, coordinate conventions, performance decisions, and validation details.
-
-## Continuous integration
-
-[GitHub Actions](.github/workflows/ci.yml) installs dependencies, checks lint and the production build, then runs the Playwright suite with Chromium on every pull request and every push to `main`.
-
-## Publishing to GitHub
-
-After creating an empty repository on GitHub:
-
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/pc-inside.git
-git push -u origin main
-```
-
-Do not commit `node_modules`, `dist`, Playwright output, local environment files, or editor settings; they are covered by `.gitignore`.
