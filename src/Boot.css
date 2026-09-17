@@ -1,0 +1,65 @@
+.ready.off { color: #77858c; }
+.close-explanation { border:0; background:transparent; color:#c8e5ee; cursor:pointer; font:22px/1 Arial,sans-serif; padding:0 2px; }
+.app-shell { background: radial-gradient(ellipse at 50% 42%,#274858 0,#142b37 42%,#0a1820 82%); }
+.language-switch { display:flex; gap:3px; margin-left:18px; padding:3px; border:1px solid #ffffff18; background:#0b171dcc; }
+.language-switch button { border:0; background:transparent; color:#718792; padding:5px 7px; cursor:pointer; font:9px 'DM Mono'; }
+.language-switch button.active { color:#e0f8ff; background:#244553; }
+.ready.off i { background: #59656b; box-shadow: none; }
+.metric-off { opacity: .58; }
+.controls .power.shutdown { background: #542a26; border-color: #b65b50; }
+.controls button:disabled, .load button:disabled { cursor: not-allowed; opacity: .42; }
+
+.process-card { position: absolute; z-index: 5; top: 22px; left: 250px; width: 385px; padding: 16px 18px; }
+.process-card header, .boot-status { display: flex; justify-content: space-between; gap: 12px; font: 10px 'DM Mono'; letter-spacing: .8px; color: #b8eafa; }
+.process-card header b { color: #718996; font-weight: 500; }
+.app-shell[data-system-phase="running"]:not(.presentation-mode) .process-card { top:76px; }
+.app-shell[data-system-phase="running"] .component-callouts { display:none; }
+.process-card p { margin: 11px 0; color: #bdcbd1; font-size: 11px; line-height: 1.55; }
+.process-card small, .process-card dt { font: 8px 'DM Mono'; letter-spacing: 1px; color: #678b9a; }
+.process-card dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 0; }
+.process-card dl div { min-width: 0; padding: 9px; background: #071116b8; border: 1px solid #ffffff0b; }
+.process-card dd { margin: 5px 0 0; color: #b8d8e2; font: 8px/1.45 'DM Mono'; }
+.phase-meter, .boot-progress { height: 2px; margin-top: 10px; overflow: hidden; background: #29363d; }
+.phase-meter i, .boot-progress i { display: block; height: 100%; background: #62d6fa; box-shadow: 0 0 8px #62d6fa; transition: width .1s linear; }
+
+.boot-console { position: absolute; z-index: 7; left: 250px; bottom: 92px; width: min(830px, calc(100vw - 630px)); padding: 11px 13px; }
+.boot-status span { color: #688693; }
+.boot-status b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.boot-buttons, .tour-controls { display: flex; align-items: center; gap: 5px; margin-top: 8px; }
+.boot-console button, .process-selector button { border: 1px solid #ffffff16; background: #111e25; padding: 7px 9px; color: #91a9b3; cursor: pointer; font: 8px 'DM Mono'; letter-spacing: .35px; }
+.tour-controls button.on { color: #8be7ff; border-color: #397c90; background: #15313b; }
+
+.process-selector { position: absolute; z-index: 6; top: 96px; left: 250px; display: flex; align-items: center; gap: 4px; padding: 8px; }
+.process-selector > span { margin: 0 6px; color: #6f8e9a; font: 8px 'DM Mono'; letter-spacing: .8px; }
+.process-selector button.active { color: #d7f7ff; border-color: #4b9bb4; background: #194052; }
+
+.color-legend { position: absolute; z-index: 3; top: 24px; left: 50%; transform: translateX(-40%); display: flex; gap: 10px; padding: 7px 9px; border: 1px solid #ffffff10; background: #071116a8; color: #778e98; font: 7px 'DM Mono'; }
+.color-legend span { display: flex; align-items: center; gap: 4px; }
+.color-legend i { width: 5px; height: 5px; border-radius: 50%; }
+.power-color { background: #ffc45c; }.data-color { background: #70bfff; }.cpu-color { background: #32d7cf; }.memory-color { background: #50e3a4; }.gpu-color { background: #a78bfa; }.heat-color { background: #ff6748; }.cooling-color { background: #83dcff; }
+.component-callouts { position: absolute; z-index: 3; left: 250px; top: 220px; display: flex; flex-wrap: wrap; gap: 5px; max-width: 385px; pointer-events: none; }
+.component-callouts span { padding: 5px 7px; border: 1px solid #4a7380; background: #0a171dcc; color: #a8ceda; font: 7px 'DM Mono'; letter-spacing: .45px; }
+
+.presentation-mode .viewport { inset: 0; }
+.presentation-mode .topbar { height: 60px; border: 0; background: linear-gradient(#05090ddd, transparent); }
+.presentation-mode .topbar nav, .presentation-mode .telemetry, .presentation-mode .explorer, .presentation-mode .info-panel, .presentation-mode .controls, .presentation-mode .boot-console, .presentation-mode .process-selector, .presentation-mode .view-switch, .presentation-mode .color-legend, .presentation-mode .component-callouts, .presentation-mode .scene-hint, .presentation-mode .disclaimer { display: none; }
+.presentation-mode .process-card { top: auto; bottom: 34px; left: 50%; width: min(720px, calc(100vw - 60px)); transform: translateX(-50%); padding: 22px 26px; background: #071116e8; }
+.presentation-mode .process-card header { font-size: 14px; }
+.presentation-mode .process-card p { font-size: 15px; }
+.presentation-mode .process-card small, .presentation-mode .process-card dt, .presentation-mode .process-card dd { font-size: 10px; }
+.presentation-mode .viewport-label { top: 76px; }
+
+@media (max-width: 1200px) {
+  .boot-console { width: calc(100vw - 525px); }
+  .boot-buttons, .tour-controls { flex-wrap: wrap; }
+  .process-card { width: 340px; }
+  .color-legend { display: none; }
+}
+@media (max-width: 900px) {
+  .process-card { left: 15px; top: 70px; width: min(360px, calc(100vw - 30px)); }
+  .component-callouts { display: none; }
+  .boot-console { left: 15px; bottom: 88px; width: calc(100vw - 30px); }
+  .process-selector { left: 15px; right: 15px; overflow-x: auto; }
+  .boot-status { display: none; }
+  .tour-controls { display: none; }
+}
