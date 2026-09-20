@@ -1,0 +1,66 @@
+.component-function,.architecture-role{margin-top:15px;padding-top:13px;border-top:1px solid #29434d}
+.component-function>span,.architecture-role>span{font:8px 'DM Mono';letter-spacing:1.3px;color:#6f98a7}
+.component-function p,.architecture-role p{margin:7px 0 0;font-size:11px;line-height:1.55}
+.architecture-role small{display:block;margin-top:7px;color:#77a3b1;font:8px 'DM Mono';line-height:1.5}
+.architecture{display:block;overflow:auto;padding:0 max(24px,5vw) 60px;scrollbar-color:#315765 #091116}
+.architecture-overview{min-height:520px;display:flex;align-items:center;justify-content:center;gap:70px}
+.software-stack{position:static;display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:8px;margin:0 auto 45px;max-width:1180px}
+.software-stack article{padding:13px;border:1px solid #294955;background:#10252e}
+.software-stack span{display:block;color:#6baec2;font:8px 'DM Mono';letter-spacing:1px}
+.software-stack b{display:block;margin:7px 0;font-size:11px;color:#d6edf3}
+.software-stack p{margin:0;color:#87a7b2;font-size:9px;line-height:1.45}
+.academic-reference{max-width:1180px;margin:0 auto;color:#d7e8ed}
+.academic-reference>header,.motherboard-map>header,.storage-comparison>header{max-width:760px;margin-bottom:18px}
+.academic-reference header>span{font:8px 'DM Mono';letter-spacing:1.5px;color:#61c8e0}
+.academic-reference h2{margin:6px 0;font-size:22px;letter-spacing:-.5px}
+.academic-reference header>p{margin:0;color:#8faab4;font-size:11px;line-height:1.6}
+.reference-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.reference-card{padding:17px;background:#0d1c23;border:1px solid #27434e}
+.reference-card>header{display:grid;grid-template-columns:7px 1fr auto;align-items:center;gap:8px;border-bottom:1px solid #263d46;padding-bottom:11px}
+.reference-card>header i{width:6px;height:6px;border-radius:50%;background:#61c8e0;box-shadow:0 0 9px currentColor}
+.reference-card>header span{font:8px 'DM Mono';letter-spacing:1px;color:#7596a3}
+.reference-card h3{margin:0;font:13px 'DM Mono';color:#ddf5f8}
+.reference-card dl{margin:12px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:12px 18px}
+.reference-card dl div{min-width:0}
+.reference-card dt{margin-bottom:5px;font:7px 'DM Mono';letter-spacing:1.1px;color:#62b9ce}
+.reference-card dd{margin:0;font-size:10px;line-height:1.55;color:#a9c0c8}
+.reference-card.concept{border-color:#31535f;background:#10242c}
+.motherboard-map,.storage-comparison{margin-top:38px;padding:22px;background:#0d1c23;border:1px solid #294955}
+.motherboard-map>div{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.motherboard-map>div span{padding:11px;background:#142932;border-left:2px solid #51c7b0;font:9px 'DM Mono';line-height:1.45;color:#b8d3da}
+.comparison-table{overflow:hidden;border:1px solid #294955}
+.comparison-row{display:grid;grid-template-columns:.65fr 1.35fr .8fr .9fr 1.15fr 1.2fr}
+.comparison-row>*{padding:11px;border-right:1px solid #294955;border-top:1px solid #294955;font-size:9px;line-height:1.45;color:#a9c0c8}
+.comparison-row>*:last-child{border-right:0}
+.comparison-row:first-child>*{border-top:0}
+.comparison-row strong{color:#d9f5fa;font:11px 'DM Mono'}
+.comparison-head{background:#17303a}
+.comparison-head b{font:7px 'DM Mono';letter-spacing:.8px;color:#6fc7db}
+.virtual-pc-storage{margin:14px 0 0;padding:12px;background:#132932;color:#acc8d0;font-size:10px;line-height:1.5}
+.virtual-pc-storage b{color:#67d8e5;font:8px 'DM Mono';letter-spacing:1px;margin-right:8px}
+.academic-disclaimer{margin:22px 0 0;padding:15px;border:1px solid #30515c;color:#86a4ae;font:9px 'DM Mono';line-height:1.5;text-align:center}
+.execution-lesson{position:fixed;z-index:12;left:50%;bottom:151px;transform:translateX(-50%);width:min(720px,calc(100vw - 570px));padding:15px 18px;background:#10232ceb}
+.execution-lesson header span{color:#61c8e0;font:8px 'DM Mono';letter-spacing:1.5px}
+.execution-lesson h2{margin:5px 0;font-size:15px}
+.execution-lesson header p{margin:0;color:#9cb3bc;font-size:10px}
+.execution-lesson ol{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;list-style:none;padding:12px 0;margin:0}
+.execution-lesson li{display:flex;gap:7px;color:#c8dce2;font-size:9px;line-height:1.35}
+.execution-lesson li i{flex:none;width:17px;height:17px;border:1px solid #4b8c9d;border-radius:50%;text-align:center;line-height:16px;color:#72d5ff;font:9px 'DM Mono'}
+.execution-lesson footer{display:flex;gap:10px;border-top:1px solid #29434d;padding-top:9px;font:8px 'DM Mono';color:#7fa5b1}
+.execution-lesson footer b{color:#55d7d0}
+.about-assignment{min-height:calc(100vh - 75px);display:grid;place-items:center;padding:45px 20px}
+.about-card{width:min(840px,90vw);padding:34px 40px}
+.about-card .panel-kicker{display:flex;gap:8px}
+.about-card h1{margin:18px 0 2px;font-size:42px;letter-spacing:-2px}
+.about-card h2{margin:0;color:#7ed7e8;font:13px 'DM Mono';letter-spacing:1px}
+.assignment-goal{margin-top:25px;padding:18px;border-left:2px solid #5dd9e7;background:#15303a}
+.assignment-goal b,.learning-objectives>b{font:9px 'DM Mono';letter-spacing:1.5px;color:#64cbde}
+.assignment-goal p{max-width:680px;margin:8px 0 0;line-height:1.6;color:#d3e3e8}
+.learning-objectives{margin:22px 0}
+.learning-objectives ul{display:grid;grid-template-columns:repeat(3,1fr);gap:9px 20px;padding:0;list-style:none}
+.learning-objectives li{position:relative;padding-left:15px;color:#a9c0c8;font-size:11px;line-height:1.45}
+.learning-objectives li:before{content:'›';position:absolute;left:0;color:#5dd9e7}
+.about-card>button{border:1px solid #4b8392;background:#183843;color:#c8eef4;padding:10px 16px;font:9px 'DM Mono'}
+@media(max-width:1100px){.architecture-overview{gap:15px}.arch-diagram{transform:scale(.78);margin-left:-70px}.execution-lesson{width:min(620px,calc(100vw - 350px))}.execution-lesson ol{grid-template-columns:repeat(2,1fr)}.software-stack{grid-template-columns:repeat(3,1fr)}.motherboard-map>div{grid-template-columns:repeat(2,1fr)}.comparison-table{overflow-x:auto}.comparison-row{min-width:900px}}
+@media(max-width:900px){.architecture{padding-left:15px;padding-right:15px}.architecture-overview{min-height:650px;gap:20px;flex-direction:column}.architecture-overview .arch-diagram{transform:scale(.65);margin:-70px 0}.execution-lesson{display:none}.software-stack{grid-template-columns:repeat(2,1fr);margin-bottom:35px}.reference-grid{grid-template-columns:1fr}.learning-objectives ul{grid-template-columns:1fr}.about-card{padding:24px}.about-card h1{font-size:34px}}
+@media(max-width:560px){.reference-card dl{grid-template-columns:1fr}.motherboard-map>div{grid-template-columns:1fr}.software-stack{grid-template-columns:1fr}.architecture-overview .arch-diagram{transform:scale(.5);margin:-110px 0}.architecture-overview{min-height:570px}}

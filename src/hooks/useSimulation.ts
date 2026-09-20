@@ -21,15 +21,16 @@ export function stepSimulation(previous: Simulation, mode: LoadMode, dt: number)
 }
 
 const phaseTargets: Partial<Record<SystemPhase, [number, number, number, number]>> = {
-  poweredOff: [0, 0, 0, 0], psuStarting: [0, 0, 0, 0], standbyPower: [1, 0, 0, 0], motherboardPower: [3, 0, 1, 0],
-  cpuInitialization: [24, 0, 4, 620], memoryTraining: [31, 0, 18, 760], gpuInitialization: [28, 32, 20, 920],
-  storageDetection: [22, 8, 14, 840], osLoading: [58, 22, 46, 1080], shuttingDown: [0, 0, 0, 0],
+  poweredOff: [0, 0, 0, 0], powerButton: [0, 0, 0, 0], psuStarting: [3, 0, 1, 0],
+  resetRelease: [12, 0, 2, 420], uefiStart: [24, 0, 4, 620], memoryInitialization: [31, 0, 18, 760], gpuInitialization: [28, 32, 20, 920],
+  post: [27, 5, 8, 700], storageDetection: [22, 8, 14, 840], bootDeviceSelection: [25, 6, 18, 860],
+  bootloader: [42, 8, 34, 940], osLoading: [58, 22, 46, 1080], driverInitialization: [48, 35, 52, 1120], systemInitialization: [52, 32, 55, 1140], shuttingDown: [0, 0, 0, 0],
 }
 
 export function stepSystemSimulation(previous: Simulation, mode: LoadMode, phase: SystemPhase, dt: number): Simulation {
   if (phase === 'running') return stepSimulation(previous, mode, dt)
   const [cpuTarget, gpuTarget, memoryTarget, rpmTarget] = phaseTargets[phase] ?? [0, 0, 0, 0]
-  const off = phase === 'poweredOff' || phase === 'psuStarting' || phase === 'standbyPower'
+  const off = phase === 'poweredOff' || phase === 'powerButton'
   const cpuLoad = approach(previous.cpuLoad, cpuTarget, off ? 1.2 : 1.6, dt)
   const gpuLoad = approach(previous.gpuLoad, gpuTarget, off ? 1.2 : 1.6, dt)
   const cpuTemp = approach(previous.cpuTemp, off ? 28 : 31 + cpuLoad * .35, phase === 'shuttingDown' ? 4.5 : 5, dt)

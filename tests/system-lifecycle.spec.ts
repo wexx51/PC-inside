@@ -56,7 +56,7 @@ test('single boot controller supports power, pause, step navigation and ordered 
   expect((await sceneState(page))?.power).toBe(false)
 
   await page.getByRole('button', { name: 'POWER ON' }).click()
-  await expect(page.locator('main')).toHaveAttribute('data-system-phase', 'psuStarting')
+  await expect(page.locator('main')).toHaveAttribute('data-system-phase', 'powerButton')
   await expect.poll(async () => (await sceneState(page))?.power).toBe(true)
   await page.waitForTimeout(250)
   await page.getByRole('button', { name: 'PAUSE', exact: true }).click()
@@ -64,16 +64,16 @@ test('single boot controller supports power, pause, step navigation and ordered 
   await page.waitForTimeout(400)
   expect(Number(await page.locator('main').getAttribute('data-phase-progress'))).toBeCloseTo(stopped, 1)
 
-  const ordered = ['standbyPower', 'motherboardPower', 'cpuInitialization', 'memoryTraining', 'gpuInitialization', 'storageDetection', 'osLoading', 'running']
+  const ordered = ['psuStarting', 'resetRelease', 'uefiStart', 'post', 'memoryInitialization', 'gpuInitialization', 'storageDetection', 'bootDeviceSelection', 'bootloader', 'osLoading', 'driverInitialization', 'systemInitialization', 'running']
   for (const expected of ordered) {
     await page.getByRole('button', { name: 'NEXT STEP', exact: true }).click()
     await expect.poll(() => phase(page)).toBe(expected)
-    if (['memoryTraining', 'gpuInitialization', 'storageDetection', 'osLoading'].includes(expected)) expect((await sceneState(page))?.data).toBe(true)
+    if (['resetRelease', 'uefiStart', 'post', 'memoryInitialization', 'gpuInitialization', 'storageDetection', 'bootDeviceSelection', 'bootloader', 'osLoading', 'driverInitialization', 'systemInitialization'].includes(expected)) expect((await sceneState(page))?.data).toBe(true)
   }
   await page.getByRole('button', { name: 'PREVIOUS STEP', exact: true }).click()
-  await expect.poll(() => phase(page)).toBe('osLoading')
+  await expect.poll(() => phase(page)).toBe('systemInitialization')
   await page.getByRole('button', { name: 'RESTART', exact: true }).click()
-  await expect.poll(() => phase(page)).toBe('psuStarting')
+  await expect.poll(() => phase(page)).toBe('powerButton')
   await page.getByRole('button', { name: 'SKIP TO RUNNING' }).click()
   await expect.poll(() => phase(page)).toBe('running')
   await expect(page.getByRole('button', { name: 'HIGH', exact: true })).toBeEnabled()
@@ -96,14 +96,14 @@ test('automatic boot tour advances through every hardware phase', async ({ page 
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: 'GUIDED TOUR' }).click()
   const visited: string[] = []
-  const deadline = Date.now() + 40_000
+  const deadline = Date.now() + 55_000
   while (Date.now() < deadline) {
     const current = await phase(page)
     if (!visited.includes(current!)) visited.push(current!)
     if (current === 'running') break
     await page.waitForTimeout(250)
   }
-  expect(visited).toEqual(['psuStarting', 'standbyPower', 'motherboardPower', 'cpuInitialization', 'memoryTraining', 'gpuInitialization', 'storageDetection', 'osLoading', 'running'])
+  expect(visited).toEqual(['powerButton', 'psuStarting', 'resetRelease', 'uefiStart', 'post', 'memoryInitialization', 'gpuInitialization', 'storageDetection', 'bootDeviceSelection', 'bootloader', 'osLoading', 'driverInitialization', 'systemInitialization', 'running'])
   await expect(page.locator('main')).toHaveAttribute('data-camera-tour', 'active')
 })
 
@@ -132,7 +132,7 @@ test('running process modes share telemetry, fan RPM, AIO and thermal inputs', a
   expect(high?.fans.every(value => value >= 0)).toBe(true)
 })
 
-test('internal/external, guided interruption, manual handoff and presentation keys work', async ({ page }) => {
+test('internal/external, guided interruption, manual handoff and academic presentation work', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: 'EXTERNAL', exact: true }).click()
   await expect.poll(async () => (await sceneState(page))?.glass).toBe(true)
@@ -157,14 +157,29 @@ test('internal/external, guided interruption, manual handoff and presentation ke
   await page.getByRole('button', { name: 'RESTART', exact: true }).click()
   await page.getByRole('button', { name: 'PRESENTATION MODE' }).click()
   await expect(page.locator('main')).toHaveClass(/presentation-mode/)
-  await page.keyboard.press('Space')
-  await expect(page.locator('main')).toHaveAttribute('data-playing', 'false')
+  await expect(page.locator('main')).toHaveAttribute('data-presentation-step', '0')
+  await expect(page.getByText('LEARNING OBJECTIVES')).toBeVisible()
+  for (const [step, systemPhase, executionState] of [
+    [1,'poweredOff','IDLE'], [2,'poweredOff','IDLE'], [3,'psuStarting','IDLE'],
+    [4,'post','IDLE'], [5,'bootloader','IDLE'], [6,'osLoading','IDLE'],
+    [7,'running','IDLE'], [8,'running','LOAD_TO_RAM'], [9,'running','DISPLAY_OUTPUT'],
+    [10,'running','NETWORK_OUTBOUND'], [11,'running','NETWORK_RESPONSE'], [12,'running','PAGE_READY'],
+  ] as const) {
+    await page.keyboard.press('ArrowRight')
+    await expect(page.locator('main')).toHaveAttribute('data-presentation-step', String(step))
+    expect(await phase(page)).toBe(systemPhase)
+    await expect(page.locator('[data-execution-state]')).toHaveAttribute('data-execution-state', executionState)
+  }
+  await expect(page.getByRole('region', { name:'Presentation step' })).toContainText('Page loaded successfully')
   await page.keyboard.press('ArrowRight')
-  expect(await phase(page)).toBe('standbyPower')
+  await expect(page.locator('main')).toHaveAttribute('data-presentation-step', '13')
+  await expect(page.getByText('Hardware and software cooperate')).toBeVisible()
+  await expect(page.getByRole('region', { name:'Presentation step' })).toContainText('HARDWARE ↔ FIRMWARE ↔ OPERATING SYSTEM ↔ APPLICATIONS')
   await page.keyboard.press('ArrowLeft')
-  expect(await phase(page)).toBe('psuStarting')
+  await expect(page.locator('main')).toHaveAttribute('data-presentation-step', '12')
   await page.keyboard.press('Escape')
   await expect(page.locator('main')).not.toHaveClass(/presentation-mode/)
+  await expect.poll(async () => (await sceneState(page))?.cameraMode, { timeout:20_000 }).toBe('manual')
 })
 
 test('shutdown fades activity and returns to poweredOff', async ({ page }) => {

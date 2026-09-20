@@ -1,16 +1,19 @@
+import { type ExecutionSnapshot } from '../system/executionMachine'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { ContactShadows, Environment, Lightformer, RoundedBox, Stars } from '@react-three/drei'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import type { ComponentId } from '../data/components'
+import type { ExecutionMode } from '../data/education'
 import type { SystemPhase } from '../system/bootMachine'
 import { CameraDirector } from './CameraDirector'
+import { Monitor } from './Monitor'
+import { GPU_DISPLAY_OUTPUT } from './displayLayout'
 import { AIOCooler } from './cooling/AIOCooler'
 import { Fan } from './cooling/Fan'
 import { BOARD_POSITION, BOARD_SCALE, CASE_WIDTH_SCALE, CASE_YAW, CPU_MOUNT, GPU_MOUNT, RAM_MOUNT, SSD_MOUNT, PUMP_MOUNT, PSU_MOUNT, boardPoint } from './layout'
 
-export type ProcessMode = 'OVERVIEW' | 'POWER' | 'CPU TASK' | 'MEMORY' | 'GRAPHICS' | 'STORAGE' | 'COOLING'
-type Props = { selected: ComponentId | null; onSelect: (id: ComponentId) => void; internal: boolean; dataFlow: boolean; powerFlow: boolean; exploded: boolean; load: number; fanRpm: number; cpuTemp: number; gpuTemp: number; systemPhase: SystemPhase; systemProgress: number; processMode: ProcessMode; resetToken: number; focusToken: number; guidedTour: boolean; cameraPaused: boolean; onManualCamera: () => void }
+type Props = { execution: ExecutionSnapshot; selected: ComponentId | null; onSelect: (id: ComponentId) => void; internal: boolean; dataFlow: boolean; powerFlow: boolean; exploded: boolean; load: number; fanRpm: number; cpuTemp: number; gpuTemp: number; systemPhase: SystemPhase; systemProgress: number; processMode: ExecutionMode; resetToken: number; focusToken: number; guidedTour: boolean; cameraPaused: boolean; onManualCamera: () => void }
 const colors = { steel: '#334750', black: '#172229', pcb: '#173a33', trace: '#67b99b', aluminum: '#91a0a6', copper: '#c9885a', rgb: '#83dcff', violet: '#9a8cff', rubber: '#202b30', gold: '#d8b96b' }
 const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 const FRONT_FAN_Y = [-1.34, 1.22, 3.78] as const
@@ -27,18 +30,18 @@ const CASE_GEOMETRY = {
   frontFaceZ: 1.19,
 } as const
 
-export function PCScene(props: Props) {
+export function PCScene(props: Props & { deskToken: number }) {
   const powered = props.systemPhase !== 'poweredOff'
-  return <Canvas shadows={{ type: THREE.PCFShadowMap }} dpr={[1, 1.75]} camera={{ position: [11.5, 6.9, 12.8], fov: 37 }} gl={{ antialias: true, toneMappingExposure: 1.45 }}>
-    <color attach="background" args={['#142630']} /><fog attach="fog" args={['#142630', 20, 42]} />
-    <ambientLight intensity={powered ? 1.22 : 1.02} /><hemisphereLight args={['#effbff', '#657b86', powered ? 1.55 : 1.2]} />
-    <directionalLight position={[-4, 4, 9]} intensity={powered ? 3.25 : 1.9} color="#e4f6ff" />
-    <directionalLight position={[5, 12, 9]} intensity={powered ? 4 : 2.25} color="#ffffff" castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-0.0001} />
-    <spotLight position={[-8, 7, 7]} intensity={powered ? 115 : 52} angle={0.52} penumbra={0.92} color="#8ed7f5" distance={25} />
-    <pointLight position={[3, 5, -5]} intensity={powered ? 36 : 10} color="#c2baff" distance={12} /><pointLight position={[0, -1, 5]} intensity={powered ? 22 : 9} color="#a9edff" distance={10} />
-    <Assembly {...props} /><ContactShadows position={[0, -3.05, 0]} opacity={0.6} scale={24} blur={2.5} far={8} /><Stars radius={28} depth={16} count={250} factor={1.2} saturation={0} />
-    <Environment resolution={128}><Lightformer position={[0, 7, 3]} rotation={[Math.PI / 2, 0, 0]} scale={[10, 10, 1]} intensity={2} /><Lightformer position={[-6, 3, 5]} scale={[5, 8, 1]} intensity={2} color="#b3dfff" /></Environment>
-    <CameraDirector selected={props.selected} focusToken={props.focusToken} resetToken={props.resetToken} internal={props.internal} guidedTour={props.guidedTour} paused={props.cameraPaused} onManualControl={props.onManualCamera} />
+  return <Canvas shadows={{ type: THREE.PCFShadowMap }} dpr={[1, 1.75]} camera={{ position: [10.3, 6.2, 11.5], fov: 33 }} gl={{ antialias: true, toneMappingExposure: 1.55 }}>
+    <color attach="background" args={['#1b3440']} />
+    <ambientLight intensity={powered ? 1.48 : 1.28} /><hemisphereLight args={['#ffffff', '#7894a0', powered ? 1.82 : 1.52]} />
+    <directionalLight position={[-4, 4, 9]} intensity={powered ? 3.7 : 2.35} color="#eafaff" />
+    <directionalLight position={[5, 12, 9]} intensity={powered ? 4.7 : 2.9} color="#ffffff" castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-0.0001} />
+    <spotLight position={[-8, 7, 7]} intensity={powered ? 132 : 68} angle={0.52} penumbra={0.92} color="#9ee5fa" distance={25} />
+    <pointLight position={[3, 5, -5]} intensity={powered ? 42 : 15} color="#c9c3ff" distance={12} /><pointLight position={[0, -1, 5]} intensity={powered ? 28 : 13} color="#b5f2ff" distance={10} />
+    <Assembly {...props} /><ContactShadows position={[0, -3.05, 0]} opacity={0.48} scale={24} blur={2.5} far={8} /><Stars radius={28} depth={16} count={250} factor={1.2} saturation={0} />
+    <Environment resolution={128}><Lightformer position={[0, 7, 3]} rotation={[Math.PI / 2, 0, 0]} scale={[10, 10, 1]} intensity={2.6} /><Lightformer position={[-6, 3, 5]} scale={[5, 8, 1]} intensity={2.7} color="#c5eaff" /></Environment>
+    <CameraDirector selected={props.selected} deskToken={props.deskToken} focusToken={props.focusToken} resetToken={props.resetToken} internal={props.internal} guidedTour={props.guidedTour} paused={props.cameraPaused} onManualControl={props.onManualCamera} />
   </Canvas>
 }
 
@@ -46,16 +49,18 @@ function Assembly(props: Props) {
   const boardDetail = props.exploded && props.selected === 'motherboard'
   return <group position={[0, -0.05, 0]}>
     <StudioFloor /><group name="chassis" rotation={[0, CASE_YAW, 0]}><group scale={[CASE_WIDTH_SCALE, 1, 1]}><PowerManagedGroup powered={props.systemPhase !== 'poweredOff'}><Case internal={props.internal} fanRpm={props.fanRpm} powered={props.systemPhase !== 'poweredOff'} />
-    <Selectable id="motherboard" {...props}><MemoMotherboard /></Selectable>
+    <Selectable id="motherboard" {...props}><MemoMotherboard />{props.selected === 'motherboard' && <MotherboardHotspots />}</Selectable>
     <Selectable id="cpu" {...props}><group position={[0, 0, boardDetail ? .65 : 0]}><CPU detail={props.exploded && props.selected === 'cpu'} /></group></Selectable>
     <Selectable id="ram" {...props}><group position={[0, 0, boardDetail ? 1 : 0]}><MemoMemory /></group></Selectable>
     <Selectable id="ssd" {...props}><group position={[0, 0, boardDetail ? .75 : 0]}><MemoNVMe /></group></Selectable>
     <Selectable id="gpu" {...props}><GraphicsCard exploded={boardDetail || (props.exploded && props.selected === 'gpu')} load={props.load} fanRpm={props.fanRpm} /></Selectable>
-    <Selectable id="cooling" {...props}><AIOCooler fanRpm={props.fanRpm} temperature={props.cpuTemp} powered={!['poweredOff','psuStarting','standbyPower','motherboardPower'].includes(props.systemPhase) && !(props.systemPhase==='shuttingDown'&&props.systemProgress>.62)} exploded={boardDetail || (props.exploded && props.selected === 'cpu')} /></Selectable>
+    <Selectable id="cooling" {...props}><AIOCooler fanRpm={props.fanRpm} temperature={props.cpuTemp} powered={!['poweredOff','powerButton','psuStarting'].includes(props.systemPhase) && !(props.systemPhase==='shuttingDown'&&props.systemProgress>.62)} exploded={boardDetail || (props.exploded && props.selected === 'cpu')} /></Selectable>
     <Selectable id="psu" {...props}><PowerSupply load={props.load} fanRpm={props.fanRpm} /></Selectable>
     <Selectable id="case" {...props}><ChassisDetails internal={props.internal} /></Selectable>
-    <MemoCableHarness power={props.powerFlow || ['psuStarting','standbyPower','motherboardPower','cpuInitialization','gpuInitialization'].includes(props.systemPhase)} /></PowerManagedGroup>
-    <ProcessVisualization phase={props.systemPhase} progress={props.systemProgress} mode={props.processMode} dataEnabled={props.dataFlow} powerEnabled={props.powerFlow} cpuTemp={props.cpuTemp} gpuTemp={props.gpuTemp} fanRpm={props.fanRpm} /></group></group>
+    <MemoCableHarness power={props.powerFlow || ['powerButton','psuStarting','resetRelease','uefiStart','gpuInitialization'].includes(props.systemPhase)} /></PowerManagedGroup>
+    <ProcessVisualization phase={props.systemPhase} progress={props.systemProgress} mode={props.processMode} dataEnabled={props.dataFlow && props.execution.state === 'IDLE'} powerEnabled={props.powerFlow} cpuTemp={props.cpuTemp} gpuTemp={props.gpuTemp} fanRpm={props.fanRpm} />
+    {props.systemPhase === 'running' && props.execution.state !== 'IDLE' && <ExecutionVisualization execution={props.execution} enabled={props.dataFlow} />}
+    <Monitor execution={props.execution} phase={props.systemPhase} progress={props.systemProgress} dataFlow={props.dataFlow} onSelect={() => props.onSelect('monitor')} /></group></group>
   </group>
 }
 
@@ -73,6 +78,7 @@ function Selectable({ id, selected, onSelect, children }: { id: ComponentId; sel
 
 function SelectionBrackets({ id }: { id: ComponentId }) {
   const frames: Record<ComponentId, { center: [number, number, number]; half: [number, number] }> = {
+    monitor: { center: [-9, .8, .1], half: [3.8, 2.4] },
     cpu: { center: [PUMP_MOUNT[0], PUMP_MOUNT[1], PUMP_MOUNT[2] + .3], half: [.65, .65] },
     ram: { center: [RAM_MOUNT[0] + .34, RAM_MOUNT[1], -2.45], half: [.52, 1.35] },
     ssd: { center: [SSD_MOUNT[0], SSD_MOUNT[1], -2.7], half: [1, .3] },
@@ -138,16 +144,29 @@ function Motherboard() {
     <Chipset position={[1.85, -1.75, .23]} /><ATXConnector /><SATA /><RearIO /><EPSConnector />
   </group>
 }
-function Socket({ position }: { position: [number, number, number] }) { return <group position={position}><RoundedBox args={[1.7, 1.7, .12]} radius={.08} smoothness={3}><meshStandardMaterial color="#1c2528" metalness={.85} roughness={.3} /></RoundedBox><mesh position={[0, 0, .09]}><boxGeometry args={[1.38, 1.38, .05]} /><meshStandardMaterial color="#bcc8c6" metalness={.9} roughness={.2} /></mesh><mesh position={[-.72, 0, .15]}><torusGeometry args={[.64, .026, 8, 28, Math.PI]} /><meshStandardMaterial color={colors.aluminum} metalness={1} /></mesh>{[-.62, .62].map(x => <Screw key={x} position={[x, -.65, .15]} size={.07} />)}</group> }
+function MotherboardHotspots() {
+  const points: readonly {name:string;position:[number,number,number];color:string}[]=[
+    {name:'CPU socket',position:[-.8,1.45,.48],color:'#72d5ff'},
+    {name:'chipset',position:[1.85,-1.75,.5],color:'#46ddbb'},
+    {name:'DIMM slots',position:[1.8,1.2,.52],color:'#59e9c1'},
+    {name:'PCIe expansion slots',position:[.55,-.9,.52],color:'#a894ff'},
+    {name:'M.2 slots',position:[-.25,-2.4,.52],color:'#50b7ff'},
+    {name:'rear I/O',position:[-3.22,1.35,.52],color:'#72d5ff'},
+    {name:'24-pin ATX power',position:[3,.4,.52],color:'#ffd27a'},
+    {name:'8-pin CPU power',position:[-2.3,3.3,.52],color:'#ffd27a'},
+  ]
+  return <group name="motherboard-connection-highlights" position={BOARD_POSITION} scale={BOARD_SCALE}>{points.map(point=><group name={point.name} position={point.position} key={point.name}><mesh><ringGeometry args={[.13,.18,24]}/><meshBasicMaterial color={point.color} transparent opacity={.88} side={THREE.DoubleSide}/></mesh><pointLight color={point.color} intensity={.8} distance={.7}/></group>)}</group>
+}
+function Socket({ position }: { position: [number, number, number] }) { return <group name="cpu-socket" position={position}><RoundedBox args={[1.7, 1.7, .12]} radius={.08} smoothness={3}><meshStandardMaterial color="#1c2528" metalness={.85} roughness={.3} /></RoundedBox><mesh position={[0, 0, .09]}><boxGeometry args={[1.38, 1.38, .05]} /><meshStandardMaterial color="#bcc8c6" metalness={.9} roughness={.2} /></mesh><mesh position={[-.72, 0, .15]}><torusGeometry args={[.64, .026, 8, 28, Math.PI]} /><meshStandardMaterial color={colors.aluminum} metalness={1} /></mesh>{[-.62, .62].map(x => <Screw key={x} position={[x, -.65, .15]} size={.07} />)}</group> }
 function VRM({ position, count, horizontal = false }: { position: [number, number, number]; count: number; horizontal?: boolean }) { return <group position={position}>{Array.from({ length: count }, (_, i) => <group key={i} position={horizontal ? [-1.25 + i * .36, 0, 0] : [0, -.85 + i * .34, 0]}><mesh><boxGeometry args={horizontal ? [.22, .36, .13] : [.42, .2, .13]} /><meshStandardMaterial color="#303b3f" metalness={.85} roughness={.35} /></mesh><mesh position={[0, 0, .09]}><boxGeometry args={horizontal ? [.1, .22, .05] : [.24, .09, .05]} /><meshStandardMaterial color="#717f7f" metalness={.7} /></mesh></group>)}<RoundedBox args={horizontal ? [3.1, .42, .15] : [.45, 2.15, .15]} radius={.04} position={horizontal ? [0, .34, .02] : [.35, 0, .02]}><meshStandardMaterial color="#516166" metalness={.92} roughness={.28} /></RoundedBox></group> }
-function DIMMSlots() { return <group position={[1.3, 1.2, .2]}>{Array.from({ length: 4 }, (_, i) => <group key={i} position={[i * .34, 0, 0]}><mesh><boxGeometry args={[.13, 3.35, .15]} /><meshStandardMaterial color="#101518" metalness={.7} roughness={.36} /></mesh><mesh position={[0, 0, .09]}><boxGeometry args={[.035, 2.9, .03]} /><meshStandardMaterial color="#d3b86b" metalness={.8} /></mesh><mesh position={[0, 1.7, .04]}><boxGeometry args={[.22, .15, .11]} /><meshStandardMaterial color="#6b7779" /></mesh></group>)}</group> }
-function PCIeSlots() { return <group position={[.55, -.9, .2]}>{[0, -.7, -1.4].map((y, i) => <group key={y} position={[0, y, 0]}><mesh><boxGeometry args={[4.35 - i * 1.35, .2, .17]} /><meshStandardMaterial color="#12191b" metalness={.65} /></mesh><mesh position={[-1.4, .01, .1]}><boxGeometry args={[1.2, .035, .035]} /><meshStandardMaterial color="#d1ae5f" metalness={.8} /></mesh></group>)}</group> }
-function M2Slots() { return <group>{[[-.25, -.25], [-.25, -2.4]].map(([x, y]) => <group key={y} position={[x, y, .22]}><RoundedBox args={[1.65, .48, .09]} radius={.04}><meshStandardMaterial color="#536468" metalness={.9} roughness={.25} /></RoundedBox><mesh position={[.52, 0, .06]}><boxGeometry args={[.5, .06, .025]} /><meshStandardMaterial color="#8b9b9c" /></mesh><Screw position={[.68, 0, .08]} size={.055} /></group>)}</group> }
-function Chipset({ position }: { position: [number, number, number] }) { return <group position={position}><RoundedBox args={[1.25, 1.25, .18]} radius={.12} smoothness={4}><meshStandardMaterial color="#36464a" metalness={.94} roughness={.28} /></RoundedBox>{Array.from({ length: 8 }, (_, i) => <mesh key={i} position={[0, -.42 + i * .12, .1]}><boxGeometry args={[1.0, .025, .04]} /><meshStandardMaterial color="#9ba4a3" metalness={1} /></mesh>)}</group> }
-function ATXConnector() { return <group position={[3.0, .4, .25]}>{Array.from({ length: 12 }, (_, i) => <mesh key={i} position={[0, -.7 + i * .125, 0]}><boxGeometry args={[.26, .08, .14]} /><meshStandardMaterial color="#202a2c" /></mesh>)}</group> }
+function DIMMSlots() { return <group name="dimm-slots" position={[1.3, 1.2, .2]}>{Array.from({ length: 4 }, (_, i) => <group key={i} position={[i * .34, 0, 0]}><mesh><boxGeometry args={[.13, 3.35, .15]} /><meshStandardMaterial color="#101518" metalness={.7} roughness={.36} /></mesh><mesh position={[0, 0, .09]}><boxGeometry args={[.035, 2.9, .03]} /><meshStandardMaterial color="#d3b86b" metalness={.8} /></mesh><mesh position={[0, 1.7, .04]}><boxGeometry args={[.22, .15, .11]} /><meshStandardMaterial color="#6b7779" /></mesh></group>)}</group> }
+function PCIeSlots() { return <group name="pcie-expansion-slots" position={[.55, -.9, .2]}>{[0, -.7, -1.4].map((y, i) => <group key={y} position={[0, y, 0]}><mesh><boxGeometry args={[4.35 - i * 1.35, .2, .17]} /><meshStandardMaterial color="#12191b" metalness={.65} /></mesh><mesh position={[-1.4, .01, .1]}><boxGeometry args={[1.2, .035, .035]} /><meshStandardMaterial color="#d1ae5f" metalness={.8} /></mesh></group>)}</group> }
+function M2Slots() { return <group name="m2-slots">{[[-.25, -.25], [-.25, -2.4]].map(([x, y]) => <group key={y} position={[x, y, .22]}><RoundedBox args={[1.65, .48, .09]} radius={.04}><meshStandardMaterial color="#536468" metalness={.9} roughness={.25} /></RoundedBox><mesh position={[.52, 0, .06]}><boxGeometry args={[.5, .06, .025]} /><meshStandardMaterial color="#8b9b9c" /></mesh><Screw position={[.68, 0, .08]} size={.055} /></group>)}</group> }
+function Chipset({ position }: { position: [number, number, number] }) { return <group name="chipset" position={position}><RoundedBox args={[1.25, 1.25, .18]} radius={.12} smoothness={4}><meshStandardMaterial color="#36464a" metalness={.94} roughness={.28} /></RoundedBox>{Array.from({ length: 8 }, (_, i) => <mesh key={i} position={[0, -.42 + i * .12, .1]}><boxGeometry args={[1.0, .025, .04]} /><meshStandardMaterial color="#9ba4a3" metalness={1} /></mesh>)}</group> }
+function ATXConnector() { return <group name="atx-24-pin-power" position={[3.0, .4, .25]}>{Array.from({ length: 12 }, (_, i) => <mesh key={i} position={[0, -.7 + i * .125, 0]}><boxGeometry args={[.26, .08, .14]} /><meshStandardMaterial color="#202a2c" /></mesh>)}</group> }
 function SATA() { return <group position={[2.95, -2.25, .23]} rotation={[0, 0, Math.PI / 2]}>{Array.from({ length: 4 }, (_, i) => <RoundedBox key={i} args={[.4, .24, .16]} radius={.04} position={[i * .32, 0, 0]}><meshStandardMaterial color="#172225" /></RoundedBox>)}</group> }
-function RearIO() { return <group position={[-3.22, 1.35, .24]}>{Array.from({ length: 8 }, (_, i) => <mesh key={i} position={[0, -2.1 + i * .55, 0]}><boxGeometry args={[.14, .34, .14]} /><meshStandardMaterial color={i % 3 === 0 ? '#8ab8c7' : '#263236'} metalness={.8} /></mesh>)}</group> }
-function EPSConnector() { return <group position={[-2.3, 3.3, .24]}>{Array.from({ length: 8 }, (_, i) => <mesh key={i} position={[-.25 + (i % 2) * .25, -.35 + Math.floor(i / 2) * .23, 0]}><boxGeometry args={[.2, .18, .13]} /><meshStandardMaterial color="#161e21" /></mesh>)}</group> }
+function RearIO() { return <group name="rear-io" position={[-3.22, 1.35, .24]}>{Array.from({ length: 8 }, (_, i) => <mesh key={i} position={[0, -2.1 + i * .55, 0]}><boxGeometry args={[.14, .34, .14]} /><meshStandardMaterial color={i % 3 === 0 ? '#8ab8c7' : '#263236'} metalness={.8} /></mesh>)}</group> }
+function EPSConnector() { return <group name="cpu-eps-power" position={[-2.3, 3.3, .24]}>{Array.from({ length: 8 }, (_, i) => <mesh key={i} position={[-.25 + (i % 2) * .25, -.35 + Math.floor(i / 2) * .23, 0]}><boxGeometry args={[.2, .18, .13]} /><meshStandardMaterial color="#161e21" /></mesh>)}</group> }
 
 function CPU({ detail }: { detail: boolean }) { return <group position={CPU_MOUNT} scale={[.64, .64, 1]}><RoundedBox args={[1.43, 1.43, .16]} radius={.07} smoothness={3} position={[0, 0, detail ? .72 : .02]}><meshStandardMaterial color="#c5d0ce" metalness={.94} roughness={.23} /></RoundedBox><mesh position={[0, 0, -.1]}><boxGeometry args={[1.66, 1.66, .06]} /><meshStandardMaterial color="#395b50" metalness={.52} /></mesh>{detail && <CPUTechnical />}</group> }
 function CPUTechnical() { return <group position={[0, 0, 1.25]}>{[-.35, .35].flatMap(x => [-.35, .35].map(y => <RoundedBox key={`${x}${y}`} args={[.55, .55, .15]} radius={.04} position={[x, y, 0]}><meshPhysicalMaterial color="#43c5e8" emissive="#11627d" emissiveIntensity={1.2} transparent opacity={.76} /></RoundedBox>))}<mesh position={[0, -.7, 0]}><boxGeometry args={[1.4, .16, .1]} /><meshBasicMaterial color={colors.violet} /></mesh><mesh position={[0, .7, 0]}><boxGeometry args={[1.4, .12, .1]} /><meshBasicMaterial color={colors.rgb} /></mesh></group> }
@@ -194,7 +213,10 @@ const ATX_ROUTE=[PSU_POINT,v(2.8,-1.5,.78),v(2.65,1.5,-2),new THREE.Vector3(...b
 const EPS_ROUTE=[PSU_POINT,v(-3.35,-1.5,1),v(-3.3,3.8,-2.7),new THREE.Vector3(...boardPoint(-2.3,3.3,.35)),CPU_POINT]
 const GPU_POWER_ROUTE=[PSU_POINT,v(2.9,-1.6,1.8),v(3.15,.1,-.7),v(1.8,GPU_MOUNT[1]-.25,-1.22)]
 const CPU_RAM_ROUTE=[CPU_POINT,v(-.3,2.7,-2.5),RAM_POINT], CPU_GPU_ROUTE=[CPU_POINT,v(-1.4,1.3,-2.7),GPU_POINT]
-const GPU_OUTPUT_ROUTE=[GPU_POINT,v(1.2,.6,-2.5),v(3.3,1.6,-1.1),v(4.5,1.6,1.1)]
+// The internal graphics path ends at the port; Monitor owns the external cable pulse.
+const GPU_OUTPUT_ROUTE=[GPU_POINT,v(-2.8,GPU_MOUNT[1],-1.95),GPU_DISPLAY_OUTPUT]
+const IO_POINT=v(-3.35,2.15,-3.05), NETWORK_POINT=v(-3.35,.85,-3.05), INPUT_POINT=v(-4.8,2.15,-2.5), NETWORK_EDGE=v(-4.8,.85,-2.5)
+const INPUT_ROUTE=[INPUT_POINT,IO_POINT,CHIPSET_POINT,RAM_POINT,CPU_POINT], NETWORK_ROUTE=[NETWORK_EDGE,NETWORK_POINT,CHIPSET_POINT,RAM_POINT,CPU_POINT]
 const SSD_CHIPSET_ROUTE=[CHIPSET_POINT,SSD_POINT], CHIPSET_RAM_ROUTE=[CHIPSET_POINT,v(-.2,.9,-2.65),RAM_POINT]
 const DIRECT_CHIPSET_RAM_ROUTE=[CHIPSET_POINT,RAM_POINT], DIRECT_CPU_RAM_ROUTE=[CPU_POINT,RAM_POINT]
 const SHUTDOWN_ROUTE=[RAM_POINT,CHIPSET_POINT,SSD_POINT]
@@ -203,33 +225,41 @@ const CPU_EXHAUST_ROUTE=[CPU_POINT,v(-.4,3.5,-1.8),v(0,4.8,-.9),v(0,6.2,-.9)]
 const GPU_EXHAUST_ROUTE=[GPU_POINT,v(.4,2.5,-1.2),v(1.4,4.8,-.8),v(1.4,6.2,-.8)]
 const HOT_COOLANT_ROUTE=[CPU_POINT,v(.2,3.25,-1.5),v(2.65,4.5,-1.25)], COLD_COOLANT_ROUTE=[CPU_POINT,v(.4,3.05,-.9),v(2.65,4.5,-.6)]
 
-function ProcessVisualization({phase,progress,mode,dataEnabled,powerEnabled,cpuTemp,gpuTemp,fanRpm}:{phase:SystemPhase;progress:number;mode:ProcessMode;dataEnabled:boolean;powerEnabled:boolean;cpuTemp:number;gpuTemp:number;fanRpm:number}) {
+function ProcessVisualization({phase,progress,mode,dataEnabled,powerEnabled,cpuTemp,gpuTemp,fanRpm}:{phase:SystemPhase;progress:number;mode:ExecutionMode;dataEnabled:boolean;powerEnabled:boolean;cpuTemp:number;gpuTemp:number;fanRpm:number}) {
   if(phase==='poweredOff') return <group name="standby-power"><mesh position={boardPoint(3,.4,.44)}><sphereGeometry args={[.045,8,8]}/><meshBasicMaterial color="#8c6724" transparent opacity={.38}/></mesh></group>
   const running=phase==='running', shutting=phase==='shuttingDown'
-  const showPower=powerEnabled || ['psuStarting','standbyPower','motherboardPower','cpuInitialization','gpuInitialization'].includes(phase) || (running&&mode==='POWER')
-  const showData=dataEnabled && (running || ['cpuInitialization','memoryTraining','gpuInitialization','storageDetection','osLoading','shuttingDown'].includes(phase)) && mode!=='POWER' && mode!=='COOLING'
+  const showPower=powerEnabled || ['powerButton','psuStarting','resetRelease','uefiStart','gpuInitialization'].includes(phase) || (running&&mode==='POWER')
+  const showData=dataEnabled && (running || ['resetRelease','uefiStart','post','memoryInitialization','gpuInitialization','storageDetection','bootDeviceSelection','bootloader','osLoading','driverInitialization','systemInitialization','shuttingDown'].includes(phase)) && (!running || (mode!=='POWER' && mode!=='COOLING'))
   const thermal=running&&mode==='COOLING'
   return <group name="process-visualization" userData={{phase,mode}}>
     {showPower&&<group name="power-flow">
-      {phase==='psuStarting'?<MovingPulse color="#ffb34d" points={AC_PSU_ROUTE} count={4}/>:phase==='standbyPower'?<MovingPulse color="#ffca64" points={ATX_ROUTE} count={2}/>:<><MovingPulse color="#ffc45c" points={ATX_ROUTE}/><MovingPulse color="#ffc45c" points={EPS_ROUTE}/><MovingPulse color="#ffc45c" points={GPU_POWER_ROUTE}/></>}
+      {phase==='powerButton'?<MovingPulse color="#ffca64" points={ATX_ROUTE} count={2}/>:phase==='psuStarting'?<><MovingPulse color="#ffb34d" points={AC_PSU_ROUTE} count={4}/><MovingPulse color="#ffc45c" points={ATX_ROUTE}/><MovingPulse color="#ffc45c" points={EPS_ROUTE}/><MovingPulse color="#ffc45c" points={GPU_POWER_ROUTE}/></>:<><MovingPulse color="#ffc45c" points={ATX_ROUTE}/><MovingPulse color="#ffc45c" points={EPS_ROUTE}/><MovingPulse color="#ffc45c" points={GPU_POWER_ROUTE}/></>}
     </group>}
     {showData&&<group name="data-flow">
-      {phase==='memoryTraining'||(running&&mode==='MEMORY')?<><MovingPulse color="#50e3a4" points={CPU_RAM_ROUTE}/><MovingPulse reverse color="#50e3a4" points={CPU_RAM_ROUTE}/></>:null}
+      {phase==='post'?<><MovingPulse color="#50e3a4" points={CPU_RAM_ROUTE} count={2}/><MovingPulse color="#a78bfa" points={CPU_GPU_ROUTE} count={2}/><MovingPulse reverse color="#70bfff" points={SSD_CHIPSET_ROUTE} count={2}/></>:null}
+      {phase==='memoryInitialization'||(running&&mode==='MEMORY')?<><MovingPulse color="#50e3a4" points={CPU_RAM_ROUTE}/><MovingPulse reverse color="#50e3a4" points={CPU_RAM_ROUTE}/></>:null}
       {phase==='gpuInitialization'||(running&&['GRAPHICS','CPU TASK'].includes(mode))?<MovingPulse color="#a78bfa" points={CPU_GPU_ROUTE} count={4}/>:null}
       {phase==='storageDetection'?<MovingPulse reverse color="#70bfff" points={SSD_CHIPSET_ROUTE} count={4}/>:null}
+      {phase==='bootDeviceSelection'?<><MovingPulse reverse color="#70bfff" points={SSD_CHIPSET_ROUTE} count={3}/><MovingPulse color="#50e3a4" points={DIRECT_CHIPSET_RAM_ROUTE} count={2}/></>:null}
+      {phase==='bootloader'?<><MovingPulse reverse color="#70bfff" points={SSD_CHIPSET_ROUTE} count={4}/><MovingPulse color="#50e3a4" points={CHIPSET_RAM_ROUTE} count={4}/><MovingPulse color="#32d7cf" points={DIRECT_CPU_RAM_ROUTE}/></>:null}
       {phase==='osLoading'?<><MovingPulse reverse color="#70bfff" points={SSD_CHIPSET_ROUTE} count={4}/><MovingPulse color="#50e3a4" points={CHIPSET_RAM_ROUTE}/><MovingPulse reverse color="#32d7cf" points={CPU_RAM_ROUTE}/></>:null}
+      {phase==='driverInitialization'?<><MovingPulse color="#32d7cf" points={INPUT_ROUTE}/><MovingPulse color="#62b8ff" points={NETWORK_ROUTE}/><MovingPulse color="#a78bfa" points={CPU_GPU_ROUTE}/><MovingPulse color="#70bfff" points={SSD_CHIPSET_ROUTE}/></>:null}
+      {phase==='systemInitialization'?<><MovingPulse color="#32d7cf" points={DIRECT_CPU_RAM_ROUTE}/><MovingPulse color="#62b8ff" points={NETWORK_ROUTE}/><MovingPulse color="#a78bfa" points={GPU_OUTPUT_ROUTE}/></>:null}
       {running&&mode==='STORAGE'?<><MovingPulse reverse color="#70bfff" points={SSD_CHIPSET_ROUTE}/><MovingPulse color="#50e3a4" points={DIRECT_CHIPSET_RAM_ROUTE}/><MovingPulse color="#70bfff" points={SSD_CHIPSET_ROUTE}/></>:null}
       {running&&mode==='OVERVIEW'?<><MemoDataPaths/></>:null}
       {running&&mode==='CPU TASK'?<><MovingPulse reverse color="#70bfff" points={SSD_CHIPSET_ROUTE}/><MovingPulse reverse color="#32d7cf" points={DIRECT_CPU_RAM_ROUTE}/><MovingPulse color="#32d7cf" points={DIRECT_CPU_RAM_ROUTE}/><MovingPulse color="#a78bfa" points={CPU_GPU_ROUTE}/></>:null}
       {running&&mode==='GRAPHICS'?<><MovingPulse color="#a78bfa" points={CPU_GPU_ROUTE}/><MovingPulse color="#a78bfa" points={GPU_OUTPUT_ROUTE} count={3}/></>:null}
+      {running&&mode==='I/O'?<><MovingPulse color="#32d7cf" points={INPUT_ROUTE} count={4}/><MovingPulse color="#a78bfa" points={GPU_OUTPUT_ROUTE} count={3}/></>:null}
+      {running&&mode==='NETWORK'?<><MovingPulse color="#62b8ff" points={NETWORK_ROUTE} count={4}/><MovingPulse reverse color="#62b8ff" points={NETWORK_ROUTE} count={4}/></>:null}
+      {running&&mode==='APPLICATION'?<><MovingPulse reverse color="#70bfff" points={SSD_CHIPSET_ROUTE}/><MovingPulse color="#50e3a4" points={CHIPSET_RAM_ROUTE}/><MovingPulse color="#32d7cf" points={DIRECT_CPU_RAM_ROUTE}/><MovingPulse color="#a78bfa" points={CPU_GPU_ROUTE}/><MovingPulse color="#a78bfa" points={GPU_OUTPUT_ROUTE}/></>:null}
       {shutting?<MovingPulse color="#70bfff" points={SHUTDOWN_ROUTE} count={2} speed={.1} size={Math.max(.012,.065*(1-progress))}/>:null}
     </group>}
     {(thermal||(running&&mode==='COOLING'))&&<ThermalAirflow cpuTemp={cpuTemp} gpuTemp={gpuTemp} fanRpm={fanRpm}/>}
-    {!running&&phase!=='psuStarting'&&<StageGlow phase={phase} progress={progress}/>}
+    {!running&&<StageGlow phase={phase} progress={progress}/>}
   </group>
 }
 
-const STAGE_GLOWS:Partial<Record<SystemPhase,{p:THREE.Vector3;c:string;s:number}>>={standbyPower:{p:new THREE.Vector3(...boardPoint(3,.4,.45)),c:'#ffc45c',s:.22},motherboardPower:{p:new THREE.Vector3(...BOARD_POSITION),c:'#ffc45c',s:.7},cpuInitialization:{p:CPU_POINT,c:'#32d7cf',s:.48},memoryTraining:{p:RAM_POINT,c:'#50e3a4',s:.55},gpuInitialization:{p:GPU_POINT,c:'#a78bfa',s:.7},storageDetection:{p:SSD_POINT,c:'#70bfff',s:.38},osLoading:{p:CHIPSET_POINT,c:'#70bfff',s:.55},shuttingDown:{p:CPU_POINT,c:'#ff8a45',s:.35}}
+const STAGE_GLOWS:Partial<Record<SystemPhase,{p:THREE.Vector3;c:string;s:number}>>={powerButton:{p:v(3.56,4.78,.14),c:'#ffc45c',s:.25},psuStarting:{p:new THREE.Vector3(...PSU_MOUNT),c:'#ffc45c',s:.75},resetRelease:{p:CPU_POINT,c:'#32d7cf',s:.45},uefiStart:{p:new THREE.Vector3(...BOARD_POSITION),c:'#4de0bd',s:.65},post:{p:new THREE.Vector3(...BOARD_POSITION),c:'#4de0bd',s:.8},memoryInitialization:{p:RAM_POINT,c:'#50e3a4',s:.55},gpuInitialization:{p:GPU_POINT,c:'#a78bfa',s:.7},storageDetection:{p:SSD_POINT,c:'#70bfff',s:.38},bootDeviceSelection:{p:SSD_POINT,c:'#70bfff',s:.45},bootloader:{p:RAM_POINT,c:'#50e3a4',s:.55},osLoading:{p:CPU_POINT,c:'#32d7cf',s:.55},driverInitialization:{p:IO_POINT,c:'#62b8ff',s:.7},systemInitialization:{p:new THREE.Vector3(...BOARD_POSITION),c:'#62b8ff',s:.8},shuttingDown:{p:CPU_POINT,c:'#ff8a45',s:.35}}
 function StageGlow({phase,progress}:{phase:SystemPhase;progress:number}) { const item=STAGE_GLOWS[phase];if(!item)return null;return <pointLight name="stage-highlight" position={item.p} intensity={5*(phase==='shuttingDown'?1-progress:1)} distance={item.s*5} color={item.c}/> }
 
 function ThermalAirflow({cpuTemp,gpuTemp,fanRpm}:{cpuTemp:number;gpuTemp:number;fanRpm:number}) { const speed=.09+Math.max(0,fanRpm)/9000;const heat=Math.max(0,Math.min(1,(Math.max(cpuTemp,gpuTemp)-35)/50));return <group name="thermal-airflow" userData={{cpuTemp,gpuTemp,fanRpm}}>
@@ -252,3 +282,27 @@ const MemoHeatpipes = memo(Heatpipes)
 const MemoCableHarness = memo(CableHarness)
 
 const MemoDataPaths = memo(DataPaths)
+
+const EXECUTION_STORAGE_ROUTE = [SSD_POINT, CHIPSET_POINT, RAM_POINT]
+const EXECUTION_READ_ROUTE = [SSD_POINT, CHIPSET_POINT]
+function ExecutionVisualization({execution, enabled}:{execution:ExecutionSnapshot;enabled:boolean}) {
+  const {state,progress}=execution
+  const input=state==='USER_INPUT'
+  const storage=state==='STORAGE_READ'||state==='LOAD_TO_RAM'
+  const cpu=['OS_REQUEST','PROCESS_CREATION','CPU_EXECUTION','NETWORK_REQUEST','NETWORK_PROCESSING'].includes(state)
+  const network=['NETWORK_OUTBOUND','NETWORK_RESPONSE'].includes(state)
+  const gpu=state==='GPU_RENDER'||(state==='PAGE_RENDER'&&progress<.6)
+  const output=state==='DISPLAY_OUTPUT'||(state==='PAGE_RENDER'&&progress>=.6)
+  const highlights = input?[IO_POINT]:storage?[SSD_POINT,...(state==='LOAD_TO_RAM'?[RAM_POINT]:[])]:network?[NETWORK_POINT,RAM_POINT]:cpu?[CPU_POINT,RAM_POINT]:gpu?[GPU_POINT]:output?[GPU_DISPLAY_OUTPUT]:[]
+  return <group name="execution-visualization" userData={{state}}>
+    {highlights.map((point,index)=><group key={index}><pointLight position={point} intensity={5} distance={3} color="#71e5d3"/><mesh position={point}><sphereGeometry args={[.24,12,8]}/><meshBasicMaterial color="#71e5d3" wireframe transparent opacity={.65}/></mesh></group>)}
+    {enabled&&<group name="execution-packets">
+      {input&&<MovingPulse points={INPUT_ROUTE} color="#71e5d3"/>}
+      {storage&&<MovingPulse points={state==='LOAD_TO_RAM'?EXECUTION_STORAGE_ROUTE:EXECUTION_READ_ROUTE} color="#70bfff"/>}
+      {cpu&&<><MovingPulse points={CPU_RAM_ROUTE} color="#71e5d3"/><MovingPulse reverse points={CPU_RAM_ROUTE} color="#71e5d3"/></>}
+      {network&&<group name={state==='NETWORK_OUTBOUND'?'network-outbound':'network-inbound'}><MovingPulse points={NETWORK_ROUTE} reverse={state==='NETWORK_OUTBOUND'} color="#62b8ff"/></group>}
+      {gpu&&<MovingPulse points={CPU_GPU_ROUTE} color="#a78bfa"/>}
+      {output&&<MovingPulse points={GPU_OUTPUT_ROUTE} color="#a78bfa"/>}
+    </group>}
+  </group>
+}

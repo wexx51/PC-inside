@@ -3,7 +3,9 @@ import type { ComponentId } from '../data/components'
 import { BOARD_POSITION, CPU_MOUNT, GPU_MOUNT, RAM_MOUNT, SSD_MOUNT, INSPECTION_NORMAL, INSPECTION_RIGHT, WORLD_UP, localToWorld, worldToLocal } from './layout'
 
 type Preset = { target: [number, number, number]; side: number; lateral: number; vertical: number }
-export const cameraPresets: Record<ComponentId | 'hero', Preset> = {
+export const cameraPresets: Record<ComponentId | 'hero' | 'desk', Preset> = {
+  monitor: { target: [-9, .8, 0], side: 15, lateral: 0, vertical: .5 },
+  desk: { target: [-4.5, 1, 0], side: 24, lateral: 1, vertical: 5 },
   cpu: { target: [CPU_MOUNT[0] + .35, CPU_MOUNT[1] + .15, -2.15], side: 9, lateral: 1.6, vertical: 1.2 },
   ram: { target: [RAM_MOUNT[0] + .3, RAM_MOUNT[1], -2.7], side: 8.2, lateral: -1.9, vertical: .8 },
   ssd: { target: [SSD_MOUNT[0], SSD_MOUNT[1], -2.85], side: 8, lateral: .9, vertical: .9 },
@@ -11,11 +13,11 @@ export const cameraPresets: Record<ComponentId | 'hero', Preset> = {
   motherboard: { target: [BOARD_POSITION[0] + .3, 1.8, -2.9], side: 12.8, lateral: 1.9, vertical: .8 },
   psu: { target: [-1.2, -2, 1.63], side: 7.6, lateral: 1.6, vertical: .5 },
   cooling: { target: [-.1, 3.25, -1.6], side: 10.2, lateral: 1.4, vertical: -.5 },
-  case: { target: [0, 1.1, 0], side: 17, lateral: 5, vertical: 5 },
-  hero: { target: [0, 1.1, 0], side: 17, lateral: 5, vertical: 5 },
+  case: { target: [0, 1.1, 0], side: 15.5, lateral: 4.2, vertical: 5 },
+  hero: { target: [0, 1.1, 0], side: 15.5, lateral: 4.2, vertical: 5 },
 }
 
-export function focusCandidates(id: ComponentId | 'hero') {
+export function focusCandidates(id: ComponentId | 'hero' | 'desk') {
   const p = cameraPresets[id]
   const target = localToWorld(new THREE.Vector3(...p.target))
   return [0, 10, -10, 20, -20, 30, -30].flatMap(degrees => [0, -.6, .6].map(height => {

@@ -7,7 +7,7 @@ The workspace contained a small Vite/React application without a `.git` director
 - `App.tsx` owned selection, internal/external mode, load mode, telemetry, architecture navigation, boot progress, and flow toggles.
 - `PCScene.tsx` contained the entire R3F scene, procedural component models, camera director, OrbitControls, selection handlers, cables, and animated educational pulses.
 - `useFanAudio.ts` already provided filtered procedural noise and a motor oscillator. This architecture was retained and hardened.
-- Boot was a timed educational sequence, not a camera cinematic. Architecture was a separate React diagram.
+- Boot is a timed educational sequence, not a camera cinematic. It now explicitly models UEFI entry, POST, boot-device selection, the bootloader, kernel loading, and driver initialization. Architecture remains a separate React diagram.
 - The baseline production build failed with an unused inspection-right vector and two invalid OrbitControls type assertions.
 
 ## Camera findings
@@ -36,11 +36,17 @@ Focus candidates vary by component and are built from inspection normal, inspect
 - The existing audio graph reads that RPM, smoothly adjusting filtered airflow, a quiet mechanical hum, and gain. The graph is created/resumed only by the SOUND control, catches unsupported/suspended-context failures, and mutes smoothly.
 - Static cable/flow/model subtrees are memoized. Temperature changes repaint the existing display texture rather than rebuilding text geometry.
 
+## Academic data architecture
+
+`src/data/components.ts` is the shared source for component identity, function, technical characteristics, description, data path, relationships, architecture role, and physical sub-parts. The explorer, inspector, startup callouts, and architecture view consume this catalog. `src/data/education.ts` supplies the firmware/software/interface concepts, assignment brief, process modes, and program-execution lessons. Scene code retains only geometric paths and transforms.
+
+The running system adds I/O, network, and application modes. The application example follows input → OS/driver → SSD → RAM → CPU instruction execution → GPU/display, while the network lesson explains NIC DMA, interrupts, the OS protocol stack, and sockets.
+
 ## Validation
 
 `npm run build`, `npm run lint`, and `npm test` provide production, static, and Chrome browser checks. The browser suite uses real mouse drags and wheel input against the actual R3F camera, waits ten seconds after orbit release for each of the seven internal components, and exercises reset/reselection, glass mode, exploded view, boot, and architecture. It also measures the load/temperature/RPM/audio response through idle → normal → high → idle and verifies the pump display against telemetry. Route tests cover 864 exterior starting poses; numerical tests check fan smoothness and convergence.
 
-The full Chrome suite contains 14 tests covering the boot controller, process modes, language switch, component inspection, camera ownership, thermal/audio behavior, and shutdown. Production build and lint pass. A representative recorded thermal/audio cycle was:
+The Chrome suite covers the expanded boot controller, assignment content, structured component fields, application/I/O/network lessons, process modes, language switch, component inspection, camera ownership, thermal/audio behavior, and shutdown. Production typecheck, build, and lint pass. A representative recorded thermal/audio cycle was:
 
 | Workload | Fan RPM | CPU telemetry and AIO display |
 | --- | ---: | ---: |
@@ -50,3 +56,15 @@ The full Chrome suite contains 14 tests covering the boot controller, process mo
 | Return to idle | 704 | 38°C |
 
 The installed R3F version constructs `THREE.Clock`, which Three.js r186 deprecates. That upstream warning is not suppressed in the application. The repeated removed-shadow-mode warning was fixed by explicitly selecting `PCFShadowMap`. The production bundle still produces Vite's size advisory for the Three.js bundle.
+
+## Educational completeness audit
+
+The current repository already had the fourteen-stage boot sequence, structured hardware data, assignment page, architecture reference, motherboard connection highlights, application/I/O/network lessons, boot-synchronized monitor, display cable, and the shared camera/thermal/audio systems. Before editing, typecheck, lint, production build, and all 21 existing browser tests passed.
+
+This audit added explicit bootloader and driver learning objectives, exposed the existing startup concepts as full reference cards, clarified POST's limited diagnostic role, separated illustrative storage read/write examples, and centralized assignment translations and motherboard connection labels. The reference reuses the component catalog for the example SSD and the localized disclaimer.
+
+The boot console previously marked several operations complete at phase entry and produced an empty log during shutdown. Its structured message projection now follows the existing phase order and progress, supports pending statuses, and has explicit shutdown/off states. The controller and phase timings are unchanged. Boot data paths now remain available after a previous POWER or COOLING lesson; the already-defined PSU highlight is rendered during PSU startup. Camera presets, OrbitControls ownership, monitor rendering, fan audio, and simulation equations are unchanged.
+
+Focused coverage in `tests/education.spec.ts` checks learning objectives, startup definitions, read/write comparisons, console progress and rewind/shutdown, and 3D boot flow after running lessons. Screenshots verify the assignment card, storage comparison, POST reference, and kernel-loading console.
+
+Final validation: typecheck, lint, and production build passed; the complete Chrome suite passed all 24 tests. The existing Vite bundle-size advisory remains. No push, deployment, or Git remote changes were performed.

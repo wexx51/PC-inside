@@ -6,16 +6,16 @@ import * as THREE from 'three'
 import type { ComponentId } from '../data/components'
 import { focusCandidates, safeCameraPath, segmentCrossesBox } from './cameraPlan'
 
-type Props = { selected: ComponentId | null; focusToken: number; resetToken: number; internal: boolean; guidedTour: boolean; paused: boolean; onManualControl: () => void }
+type Props = { selected: ComponentId | null; deskToken: number; focusToken: number; resetToken: number; internal: boolean; guidedTour: boolean; paused: boolean; onManualControl: () => void }
 type Transition = { path: THREE.Vector3[]; fromTarget: THREE.Vector3; target: THREE.Vector3; elapsed: number; duration: number; leg: number }
 
-export function CameraDirector({ selected, focusToken, resetToken, internal, guidedTour, paused, onManualControl }: Props) {
+export function CameraDirector({ selected, deskToken, focusToken, resetToken, internal, guidedTour, paused, onManualControl }: Props) {
   const scene = useThree(state => state.scene)
   const gl = useThree(state => state.gl)
   const orbit = useRef<OrbitControlsImpl>(null)
   const mode = useRef<'manual' | 'focusTransition' | 'tourTransition'>('manual')
   const transition = useRef<Transition | null>(null)
-  const previous = useRef({ focusToken: -1, resetToken: -1, internal })
+  const previous = useRef({ focusToken: -1, resetToken: -1, deskToken, internal })
   const guided = useRef(guidedTour)
   useEffect(() => { guided.current = guidedTour }, [guidedTour])
 
@@ -31,9 +31,8 @@ export function CameraDirector({ selected, focusToken, resetToken, internal, gui
 
   useEffect(() => {
     const interrupt = () => {
-      if (!guided.current) return
       releaseCamera()
-      onManualControl()
+      if (guided.current) onManualControl()
     }
     gl.domElement.addEventListener('pointerdown', interrupt, { capture: true })
     gl.domElement.addEventListener('wheel', interrupt, { capture: true, passive: true })
@@ -53,15 +52,16 @@ export function CameraDirector({ selected, focusToken, resetToken, internal, gui
     const reset = resetToken !== old.resetToken
     const focus = focusToken !== old.focusToken
     const opening = internal && !old.internal
-    previous.current = { focusToken, resetToken, internal }
-    if (!reset && !focus && !opening) return
-    const id = reset ? 'hero' : selected ?? 'hero'
+    const desk = deskToken !== old.deskToken
+    previous.current = { focusToken, resetToken, deskToken, internal }
+    if (!reset && !focus && !opening && !desk) return
+    const id = desk ? 'desk' : reset ? 'hero' : selected ?? 'hero'
     scene.updateMatrixWorld(true)
     const obstacles: THREE.Object3D[] = []
     scene.traverse(object => {
       const component = object.name.replace('component-', '')
       const related = component === id || (['cpu', 'cooling'].includes(id) && ['cpu', 'cooling'].includes(component))
-      if (object.userData.cameraObstacle || (object.name.startsWith('component-') && !related && component !== 'case' && id !== 'hero' && id !== 'case')) obstacles.push(object)
+      if (object.userData.cameraObstacle || (object.name.startsWith('component-') && !related && component !== 'case' && id !== 'hero' && id !== 'case' && id !== 'desk')) obstacles.push(object)
     })
     const ray = new THREE.Raycaster()
     const candidates = focusCandidates(id)
@@ -72,7 +72,7 @@ export function CameraDirector({ selected, focusToken, resetToken, internal, gui
       return !ray.intersectObjects(obstacles, true).some(hit => {
         // Glass is an intentional part of the sealed exterior composition.
         let node: THREE.Object3D | null = hit.object
-        while (node) { if (node.name === 'glass-panel' && (id === 'case' || id === 'hero')) return false; node = node.parent }
+        while (node) { if (node.name === 'glass-panel' && (id === 'case' || id === 'hero' || id === 'desk')) return false; node = node.parent }
         return true
       })
     }
@@ -109,7 +109,7 @@ export function CameraDirector({ selected, focusToken, resetToken, internal, gui
     camera.userData.mode = mode.current
     camera.userData.focus = id
     camera.userData.path = path.map(p => p.toArray())
-  }, [focusToken, resetToken, internal, selected, scene, guidedTour])
+  }, [focusToken, resetToken, deskToken, internal, selected, scene, guidedTour])
 
   useFrame(({ camera }, delta) => {
     const active = transition.current, controls = orbit.current
