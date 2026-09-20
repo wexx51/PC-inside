@@ -9,7 +9,7 @@
 .controls .power.shutdown { background: #542a26; border-color: #b65b50; }
 .controls button:disabled, .load button:disabled { cursor: not-allowed; opacity: .42; }
 
-.process-card { position: absolute; z-index: 5; top: 22px; left: 250px; width: 385px; padding: 16px 18px; }
+.process-card { position: absolute; z-index: 5; top: 22px; left: 155px; width: 385px; padding: 16px 18px; }
 .process-card header, .boot-status { display: flex; justify-content: space-between; gap: 12px; font: 10px 'DM Mono'; letter-spacing: .8px; color: #b8eafa; }
 .process-card header b { color: #718996; font-weight: 500; }
 .app-shell[data-system-phase="running"]:not(.presentation-mode) .process-card { top:76px; }
